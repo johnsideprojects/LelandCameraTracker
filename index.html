@@ -307,9 +307,9 @@
         }
 
         @keyframes coneBlink {
-            0% { opacity: 0.22; }
-            50% { opacity: 0.05; }
-            100% { opacity: 0.22; }
+            0%   { opacity: 0.60; }
+            50%  { opacity: 0.15; }
+            100% { opacity: 0.60; }
         }
 
         .camera-node[data-status="maintenance"] { 
@@ -859,9 +859,9 @@
                 const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 pathEl.setAttribute('d', conePath);
                 pathEl.setAttribute('fill', strokeColor);
-                pathEl.setAttribute('fill-opacity', '0.22');
+                pathEl.setAttribute('fill-opacity', '0.45');
                 pathEl.setAttribute('stroke', strokeColor);
-                pathEl.setAttribute('stroke-width', '1.5');
+                pathEl.setAttribute('stroke-width', '2.5');
                 
                 if (cam.status === 'maintenance' || cam.status === 'offline') {
                     pathEl.setAttribute('class', 'cone-blinking');
@@ -910,11 +910,11 @@
 
         function getStatusColor(status) {
             switch(status) {
-                case 'active': return '#2ecc71';
-                case 'recording': return '#026af2';
-                case 'maintenance': return '#ffd701';
-                case 'offline': return '#e74c3c';
-                default: return '#026af2';
+                case 'active':      return '#10b981'; // Vivid Green (Functional)
+                case 'recording':   return '#026af2'; // Bright Blue (Functional)
+                case 'maintenance': return '#f59e0b'; // Amber / Warning Yellow
+                case 'offline':     return '#ef4444'; // High-Contrast Red (Non-functional)
+                default:            return '#026af2';
             }
         }
 
