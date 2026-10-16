@@ -97,7 +97,7 @@
             flex-shrink: 0; 
         }
 
-        /* Subtle User Guidance Banner */
+        /* User Guidance Banner */
         .info-hint-banner {
             background: #eef5ff;
             color: #1a56b0;
@@ -227,7 +227,7 @@
             padding: 1px 3px;
         }
 
-        /* Camera Node Icons - High Contrast Polish */
+        /* Camera Node Icons */
         .camera-node {
             position: absolute;
             width: 32px;
@@ -276,10 +276,7 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
 
-        .camera-node:hover::after {
-            opacity: 1;
-        }
-
+        .camera-node:hover::after { opacity: 1; }
         .camera-node:hover { transform: scale(1.2); z-index: 20; }
         .camera-node.selected { border-color: var(--brand-yellow); transform: scale(1.25); z-index: 21; }
         .camera-node svg { width: 16px; height: 16px; fill: currentColor; pointer-events: none; }
@@ -533,12 +530,97 @@
             line-height: 1;
         }
 
-        /* Print Export Isolation Media Query */
+        /* Servicing Report Modal Styling */
+        .report-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.65);
+            z-index: 4000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+        .report-modal.active { display: flex; }
+        .report-card {
+            background: var(--white);
+            width: 90%;
+            max-width: 950px;
+            max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .report-header {
+            padding: 16px 24px;
+            background: #fff;
+            border-bottom: 3px solid var(--brand-yellow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .report-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+            background: #fafafa;
+        }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .report-table th, .report-table td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 0.85rem;
+            vertical-align: top;
+        }
+        .report-table th {
+            background: #f1f3f5;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            color: var(--brand-gray);
+        }
+        .report-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+        .badge-maintenance { background: #fef3c7; color: #b45309; }
+        .badge-offline { background: #fee2e2; color: #b91c1c; }
+
+        .report-thumb-grid {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .report-thumb {
+            width: 60px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        /* Print Isolation Styles */
         @media print {
             body * { visibility: hidden; }
-            #map-container, #map-container * { visibility: visible; }
-            #map-container { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
-            .map-actions, .zoom-controls, .info-hint-banner { display: none !important; }
+            .report-modal, .report-modal * { visibility: visible; }
+            .report-modal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white; }
+            .report-card { box-shadow: none; width: 100%; max-width: 100%; }
+            .report-close-btn, .report-print-btn { display: none !important; }
         }
 
         ::-webkit-scrollbar { width: 6px; }
@@ -579,7 +661,8 @@
                     <button class="btn-action" id="add-block-btn">🏢 Add Building Block</button>
                     <button class="btn-action" id="add-cam-btn">📷 Add Camera</button>
                     <button class="btn-action" id="toggle-lock-all-btn">🔒 Master Lock All</button>
-                    <button class="btn-action" id="export-map-btn">🖨️ Export / Print Map</button>
+                    <button class="btn-action" id="open-report-btn" style="background:#fffbe6; border-color:#ffe58f;">🛠️ Servicing Work-Order Report</button>
+                    <button class="btn-action" id="export-map-btn">🖨️ Print Layout Map</button>
                 </div>
 
                 <div class="zoom-controls">
@@ -618,6 +701,25 @@
         <div class="lightbox-content">
             <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
             <img id="lightbox-img" src="" alt="Enlarged Camera View">
+        </div>
+    </div>
+
+    <!-- Servicing Work-Order Report Modal -->
+    <div class="report-modal" id="report-modal">
+        <div class="report-card">
+            <div class="report-header">
+                <div>
+                    <h3 style="font-weight: 800; text-transform: uppercase; color: var(--brand-gray);">IT Servicing Work Order Report</h3>
+                    <p style="font-size: 0.75rem; color: var(--text-subtle); margin-top: 2px;">AA Self Storage • Equipment & Servicing Access Details</p>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-action report-print-btn" onclick="window.print()">🖨️ Print Work Order</button>
+                    <button class="btn-action report-close-btn" onclick="closeReportModal()">✕ Close</button>
+                </div>
+            </div>
+            <div class="report-body" id="report-body-content">
+                <!-- Dynamically generated report table -->
+            </div>
         </div>
     </div>
 
@@ -781,9 +883,76 @@
             renderMap();
         };
 
-        // Export / Print Map View
+        // Export / Print Layout View
         document.getElementById('export-map-btn').onclick = () => {
             window.print();
+        };
+
+        // Servicing Report Modal Generator
+        document.getElementById('open-report-btn').onclick = () => {
+            generateServicingReport();
+        };
+
+        function generateServicingReport() {
+            const reportModal = document.getElementById('report-modal');
+            const reportContent = document.getElementById('report-body-content');
+            
+            const servicingCams = cameras.filter(c => c.status === 'maintenance' || c.status === 'offline');
+
+            if (servicingCams.length === 0) {
+                reportContent.innerHTML = `
+                    <div style="text-align:center; padding: 40px; color: var(--text-muted);">
+                        <p style="font-size: 1.1rem; font-weight: 800; color: var(--brand-green);">✔ All Cameras Operational</p>
+                        <p style="font-size: 0.85rem; margin-top: 6px;">There are currently no cameras flagged for maintenance or offline errors.</p>
+                    </div>`;
+            } else {
+                let rowsHtml = servicingCams.map(cam => {
+                    const badgeClass = cam.status === 'offline' ? 'badge-offline' : 'badge-maintenance';
+                    const statusLabel = cam.status === 'offline' ? 'Offline / Error' : 'Maintenance Required';
+                    const photosHtml = (cam.photos && cam.photos.length > 0) 
+                        ? `<div class="report-thumb-grid">${cam.photos.map(p => `<img src="${p}" class="report-thumb" onclick="openLightbox('${p}')">`).join('')}</div>` 
+                        : '<span style="color:#aaa; font-style:italic;">No photos</span>';
+
+                    return `
+                        <tr>
+                            <td>
+                                <strong>${cam.name}</strong><br>
+                                <span class="report-badge ${badgeClass}" style="margin-top:4px;">${statusLabel}</span>
+                            </td>
+                            <td>${cam.type || 'Fixed Bullet'}</td>
+                            <td><strong>${cam.height ? cam.height + ' ft' : 'Not Specified'}</strong></td>
+                            <td>${cam.notes || '<span style="color:#aaa; font-style:italic;">No notes provided</span>'}</td>
+                            <td>${photosHtml}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                reportContent.innerHTML = `
+                    <p style="margin-bottom:12px; font-size:0.85rem; color:var(--text-dark);">
+                        <strong>Summary:</strong> Found <strong>${servicingCams.length}</strong> camera(s) requiring technician servicing or equipment attention.
+                    </p>
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Camera Name / Status</th>
+                                <th>Camera Type</th>
+                                <th>Height (Access Requirement)</th>
+                                <th>Notes / Servicing Issue</th>
+                                <th>Reference Photos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            reportModal.classList.add('active');
+        }
+
+        window.closeReportModal = () => {
+            document.getElementById('report-modal').classList.remove('active');
         };
 
         // Realtime Cloud Data Sync
